@@ -3,7 +3,8 @@
 #-------------------------------------------------------------------------------
 
 cmake_minimum_required(VERSION 3.12)
-
+set(CMAKE_CXX_COMPILER "/home/xushilong/llvm-install/g++")
+set(CMAKE_C_COMPILER "/home/xushilong/llvm-install/gcc")
 if(POLICY CMP0068)
   cmake_policy(SET CMP0068 NEW)
   set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
@@ -22,9 +23,9 @@ if(POLICY CMP0116)
 endif()
 
 project(torch-mlir LANGUAGES CXX C)
+
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-
 include(CMakeDependentOption)
 
 #-------------------------------------------------------------------------------
@@ -77,7 +78,7 @@ endif()
 cmake_dependent_option(TORCH_MLIR_ENABLE_JIT_IR_IMPORTER "Enables JIT IR Importer" ON TORCH_MLIR_ENABLE_PYTORCH_EXTENSIONS OFF)
 cmake_dependent_option(TORCH_MLIR_ENABLE_LTC "Enables LTC backend" OFF TORCH_MLIR_ENABLE_PYTORCH_EXTENSIONS OFF)
 
-option(TORCH_MLIR_ENABLE_ONNX_C_IMPORTER "Enables the ONNX C importer" OFF)
+option(TORCH_MLIR_ENABLE_ONNX_C_IMPORTER "Enables the ONNX C importer" ON)
 
 macro(torch_mlir_enable_werror)
   if(TORCH_MLIR_ENABLE_WERROR_FLAG)
@@ -190,6 +191,8 @@ include(AddMLIRPython)
 ################################################################################
 
 if(MLIR_ENABLE_BINDINGS_PYTHON)
+  set(pybind11_DIR "/home/xushilong/anaconda3/envs/torch-mlir/lib/python3.11/site-packages/pybind11/share/cmake/pybind11")
+  set(nanobind_DIR "/home/xushilong/anaconda3/envs/torch-mlir/lib/python3.11/site-packages/nanobind/cmake")
   include(MLIRDetectPythonEnv)
   mlir_configure_python_dev_packages()
 endif()
