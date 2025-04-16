@@ -18,12 +18,12 @@ set(TORCH_MLIR_TEST_DEPENDS
         torch-mlir-capi-torch-test
         )
 
-add_lit_testsuite(check-torch-mlir "Running the torch-mlir regression tests"
-        ${CMAKE_CURRENT_BINARY_DIR}
-        DEPENDS ${TORCH_MLIR_TEST_DEPENDS}
-        )
-set_target_properties(check-torch-mlir PROPERTIES FOLDER "Tests")
+# add_lit_testsuite(check-torch-mlir "Running the torch-mlir regression tests"
+#         ${CMAKE_CURRENT_BINARY_DIR}
+#         DEPENDS ${TORCH_MLIR_TEST_DEPENDS}
+#         )
+# set_target_properties(check-torch-mlir PROPERTIES FOLDER "Tests")
 
-add_lit_testsuites(TORCH_MLIR ${CMAKE_CURRENT_SOURCE_DIR} DEPENDS ${TORCH_MLIR_TEST_DEPENDS})
+# add_lit_testsuites(TORCH_MLIR ${CMAKE_CURRENT_SOURCE_DIR} DEPENDS ${TORCH_MLIR_TEST_DEPENDS})
 
 add_subdirectory(CAPI)

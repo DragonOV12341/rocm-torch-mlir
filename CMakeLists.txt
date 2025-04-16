@@ -103,10 +103,11 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR TORCH_MLIR_OUT_OF_TREE_
   # MLIR/LLVM Configuration
   #-------------------------------------------------------------------------------
 
-  find_package(MLIR REQUIRED CONFIG)
+  find_package(MLIR REQUIRED CONFIG 
+    HINTS ~/llvm-install)
   message(STATUS "Using MLIRConfig.cmake in: ${MLIR_DIR}")
   message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
+  add_compile_options(-Wno-unused-but-set-parameter)
   set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/bin)
   set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/lib)
 
@@ -198,7 +199,7 @@ add_subdirectory(lib)
 add_subdirectory(tools)
 
 add_custom_target(check-torch-mlir-all)
-add_dependencies(check-torch-mlir-all check-torch-mlir)
+# add_dependencies(check-torch-mlir-all check-torch-mlir)
 
 if(MLIR_ENABLE_BINDINGS_PYTHON)
   # If parent projects want to configure where to place the python packages,

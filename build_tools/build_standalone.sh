@@ -12,18 +12,24 @@
 set -eu -o errtrace
 
 project_dir="$(cd "$(dirname "$0")"/.. && pwd)"
-llvm_project_dir="$project_dir/externals/llvm-project"
+llvm_project_dir="~/rocm-llvm-project"
+# llvm_project_dir="$project_dir/externals/llvm-project"
 build_dir="$project_dir/build"
+echo $project_dir
 
 cmake -GNinja -B"$build_dir" "$llvm_project_dir/llvm" \
   -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
   -DLLVM_ENABLE_PROJECTS=mlir \
   -DLLVM_EXTERNAL_PROJECTS="torch-mlir" \
   -DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR="$project_dir" \
   -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
   -DLLVM_ENABLE_ASSERTIONS=ON \
-  -DLLVM_TARGETS_TO_BUILD=host
+  -DLLVM_TARGETS_TO_BUILD="host;Native;NVPTX;AMDGPU" \
+  -DLLVM_BUILD_EXAMPLES=ON \
+  -DCMAKE_INSTALL_PREFIX="~/llvm-install" \
+  -Wno-unused-but-set-parameter \
+  -Dnanobind_DIR=/home/xushilong/anaconda3/envs/torch-mlir/lib/python3.11/site-packages/nanobind/cmake
+  # -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
 
 cd "$build_dir"
 ninja tools/torch-mlir/all check-torch-mlir-all

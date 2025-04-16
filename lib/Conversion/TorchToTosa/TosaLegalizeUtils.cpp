@@ -48,15 +48,25 @@ Value buildRescale(PatternRewriter &rewriter, Operation *op,
   auto shift_val = tosa::getConstTensor<int8_t>(
                        rewriter, op, {static_cast<int8_t>(shift)}, {1})
                        .value();
+  auto input_zp_val = tosa::getConstTensor<int64_t>(
+                       rewriter, op, {static_cast<int64_t>(input_zp)}, {1})
+                       .value();
+  auto output_zp_val = tosa::getConstTensor<int64_t>(
+                       rewriter, op, {static_cast<int64_t>(output_zp)}, {1})
+                       .value();
 
   bool input_unsigned = input_val.getType().isUnsignedInteger();
   bool output_unsigned = output_type.isUnsignedInteger();
+  auto roundMode = rewriter.getStringAttr(llvm::Twine("rounding_mode", llvm::StringRef{"DOUBLE_ROUND"}));
+  if(!double_round){
+    roundMode = rewriter.getStringAttr(llvm::Twine("rounding_mode", llvm::StringRef{"INEXACT_ROUND"}));
+  }
 
   auto rescale_op = CreateOpAndInfer<tosa::RescaleOp>(
       rewriter, op->getLoc(), output_type, input_val, multiplier_val, shift_val,
-      rewriter.getI32IntegerAttr(static_cast<int32_t>(input_zp)),
-      rewriter.getI32IntegerAttr(static_cast<int32_t>(output_zp)),
-      rewriter.getBoolAttr(scale32), rewriter.getBoolAttr(double_round),
+      input_zp_val,output_zp_val,
+      rewriter.getBoolAttr(scale32),
+      roundMode,
       rewriter.getBoolAttr(false), rewriter.getBoolAttr(input_unsigned),
       rewriter.getBoolAttr(output_unsigned));
 
@@ -114,12 +124,15 @@ Value buildRescaleOpConvOutput(PatternRewriter &rewriter, Operation *op,
     auto shift_val = tosa::getConstTensor<int8_t>(
                          rewriter, op, {static_cast<int8_t>(shift)}, {1})
                          .value();
-
+    auto input_zp_val = tosa::getConstTensor<int64_t>(rewriter,op,{static_cast<int64_t>(0)},{1}).value();
+    auto output_zp_val = tosa::getConstTensor<int64_t>(rewriter,op,{static_cast<int64_t>(output_zp)},{1}).value();
+    auto round_mode = rewriter.getStringAttr(llvm::Twine("round_mode", llvm::StringRef{"DOUBLE_ROUND"}));
     auto rescale_op = CreateOpAndInfer<tosa::RescaleOp>(
         rewriter, op->getLoc(), output_type, conv_val, multiplier_val,
-        shift_val, rewriter.getI32IntegerAttr(0),
-        rewriter.getI32IntegerAttr(output_zp), rewriter.getBoolAttr(scale32),
-        rewriter.getBoolAttr(true), rewriter.getBoolAttr(false),
+        shift_val, input_zp_val,
+        output_zp_val, rewriter.getBoolAttr(scale32),
+        round_mode, 
+        rewriter.getBoolAttr(false),
         rewriter.getBoolAttr(input_unsigned),
         rewriter.getBoolAttr(output_unsigned));
 
@@ -158,12 +171,17 @@ Value buildRescaleOpConvOutput(PatternRewriter &rewriter, Operation *op,
         tosa::getConstTensor<int8_t>(rewriter, op, shift_arr,
                                      {static_cast<int64_t>(shift_arr.size())})
             .value();
+    
+    auto input_zp_val = tosa::getConstTensor<int64_t>(rewriter,op,{static_cast<int64_t>(0)},{1}).value();
+    auto output_zp_val = tosa::getConstTensor<int64_t>(rewriter,op,{static_cast<int64_t>(output_zp)},{1}).value();
+    auto round_mode = rewriter.getStringAttr(llvm::Twine("round_mode", llvm::StringRef{"DOUBLE_ROUND"}));
 
     auto rescale_op = CreateOpAndInfer<tosa::RescaleOp>(
         rewriter, op->getLoc(), output_type, conv_val, multiplier_val,
-        shift_val, rewriter.getI32IntegerAttr(0),
-        rewriter.getI32IntegerAttr(output_zp), rewriter.getBoolAttr(scale32),
-        rewriter.getBoolAttr(true), rewriter.getBoolAttr(true),
+        shift_val, 
+        input_zp_val,
+        output_zp_val, rewriter.getBoolAttr(scale32),
+        round_mode, rewriter.getBoolAttr(true),
         rewriter.getBoolAttr(input_unsigned),
         rewriter.getBoolAttr(output_unsigned));
 
